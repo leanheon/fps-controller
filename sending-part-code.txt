@@ -20,6 +20,7 @@ bool reloading = false;
 bool triggerHeld = false;
 unsigned long lastRecoilTime = 0;
 const int RECOIL_INTERVAL = 100; // Time between recoil activations in milliseconds
+const int SOLENOID_ACTIVATION_TIME = 20; // Solenoid activation time in milliseconds
 
 void setup() {
   Serial.begin(9600);
@@ -85,13 +86,15 @@ void loop() {
 }
 
 void simulateRecoil() {
-  static int currentSolenoid = 0;
+  // Activate all solenoids simultaneously
+  for (int i = 0; i < SOLENOID_COUNT; i++) {
+    digitalWrite(SOLENOID_PINS[i], HIGH);
+  }
   
-  // Activate current solenoid
-  digitalWrite(SOLENOID_PINS[currentSolenoid], HIGH);
-  delay(20); // Solenoid activation time
-  digitalWrite(SOLENOID_PINS[currentSolenoid], LOW);
+  delay(SOLENOID_ACTIVATION_TIME); // Keep solenoids activated for the specified time
   
-  // Move to next solenoid
-  currentSolenoid = (currentSolenoid + 1) % SOLENOID_COUNT;
+  // Deactivate all solenoids
+  for (int i = 0; i < SOLENOID_COUNT; i++) {
+    digitalWrite(SOLENOID_PINS[i], LOW);
+  }
 }
