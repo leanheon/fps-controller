@@ -9,18 +9,27 @@ const int JOYSTICK_X = A0;
 const int JOYSTICK_Y = A1;
 const int TRIGGER_BTN = 4;
 const int MAGAZINE_BTN = 5;
-const int HANDLE_BTN = 6;
-const int REAIM_BTN = 7;
+const int REAIM_BTN = 6;
+const int SKILL_1 = 7;
+const int SKILL_2 = 8;
+const int SKILL_3 = 9;
+const int SKILL_4 = 10;
+const int SKILL_5 =11;
+const int ZOOM = A2;
+const int JUMP = A3;
 
 // Solenoid pins
-const int SOLENOID_PINS[] = {8, 9, 10, 11, 12, 13};
-const int SOLENOID_COUNT = 6;
+const int SOLENOID_PINS[] = {12, 13};
+const int SOLENOID_COUNT = 2;
 
 bool reloading = false;
 bool triggerHeld = false;
 unsigned long lastRecoilTime = 0;
 const int RECOIL_INTERVAL = 100; // Time between recoil activations in milliseconds
 const int SOLENOID_ACTIVATION_TIME = 20; // Solenoid activation time in milliseconds
+
+int lastMagazineState = HIGH;
+int currentMagazineState;
 
 void setup() {
   Serial.begin(9600);
@@ -31,8 +40,14 @@ void setup() {
   
   pinMode(TRIGGER_BTN, INPUT_PULLUP);
   pinMode(MAGAZINE_BTN, INPUT_PULLUP);
-  pinMode(HANDLE_BTN, INPUT_PULLUP);
   pinMode(REAIM_BTN, INPUT_PULLUP);
+  pinMode(SKILL_1, INPUT_PULLUP);
+  pinMode(SKILL_2, INPUT_PULLUP);
+  pinMode(SKILL_3, INPUT_PULLUP);
+  pinMode(SKILL_4, INPUT_PULLUP);
+  pinMode(SKILL_5, INPUT_PULLUP);
+  pinMode(ZOOM, INPUT_PULLUP);
+  pinMode(JUMP, INPUT_PULLUP);
   
   for (int i = 0; i < SOLENOID_COUNT; i++) {
     pinMode(SOLENOID_PINS[i], OUTPUT);
@@ -51,16 +66,35 @@ void loop() {
   
   // Read button states
   bool trigger = !digitalRead(TRIGGER_BTN);
-  bool magazine = !digitalRead(MAGAZINE_BTN);
-  bool handle = !digitalRead(HANDLE_BTN);
   bool reaim = !digitalRead(REAIM_BTN);
+  bool skill1 = !digitalRead(SKILL_1);
+  bool skill2 = !digitalRead(SKILL_2);
+  bool skill3 = !digitalRead(SKILL_3);
+  bool skill4 = !digitalRead(SKILL_4);
+  bool skill5 = !digitalRead(SKILL_5);
+  bool magazine = false;
+  bool zoom = !digitalRead(ZOOM);
+  bool jump = !digitalRead(JUMP);
   
-  // Process reload
-  if (magazine && handle && !reloading) {
-    reloading = true;
-  } else if (!magazine && !handle) {
-    reloading = false;
+  currentMagazineState = digitalRead(magazineDetectPin);
+
+  if (currentMagazineState == LOW && lastMagazineState == HIGH) {
+    bool magazine = true;
+    delay(50);  // 키 입력 시간
+    bool magazine = false;
+    
+    // 디바운싱을 위한 짧은 지연
+    delay(50);
+
+    magazine = !digitalRead(MAGAZINE_BTN);
   }
+  // 탄창이 빠졌을 때 (rising edge: LOW에서 HIGH로 변경)
+  else if (currentMagazineState == HIGH && lastMagazineState == LOW) {
+    // 탄창 제거 시 추가 동작이 필요하다면 여기에 코드를 작성하세요
+  }
+
+  // 현재 상태를 저장
+  lastMagazineState = currentMagazineState;
   
   // Process shooting and recoil
   if (trigger && !reloading) {
@@ -76,8 +110,11 @@ void loop() {
   // Prepare data to send
   String data = String(gx) + "," + String(gy) + "," + 
                 String(joyX) + "," + String(joyY) + "," +
-                String(trigger) + "," + String(reloading) + "," +
-                String(reaim);
+                String(trigger) + "," + String(magazine) + "," +
+                String(reaim) + "," + String(skill1) + "," + 
+                String(skill2) + "," + String(skill3) + "," + 
+                String(skill4) + "," + String(skill5) + "," +
+                String(zoom) + "," + String(jump);
   
   // Send data via Bluetooth
   bluetooth.println(data);

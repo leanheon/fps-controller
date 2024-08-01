@@ -1,4 +1,0 @@
-{
-    "board": "arduino:avr:leonardo",
-    "sketch": "receiving-part-code.ino"
-}

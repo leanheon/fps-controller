@@ -29,9 +29,9 @@ void loop() {
 
 void processData(String data) {
   int gx, gy, joyX, joyY;
-  bool trigger, reloading, reaim;
+  bool trigger, megazine, reaim, skill1, skill2, skill3, skill4, skill5, zoom, jump;
   
-  sscanf(data.c_str(), "%d,%d,%d,%d,%d,%d,%d", &gx, &gy, &joyX, &joyY, &trigger, &reloading, &reaim);
+  sscanf(data.c_str(), "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &gx, &gy, &joyX, &joyY, &trigger, &megazine, &reaim, &skill1, &skill2, &skill3, &skill4, &skill5, &zoom, &jump);
   
   // Process mouse movement
   int mouseX = map(gx, -32768, 32767, -SENSITIVITY, SENSITIVITY);
@@ -58,13 +58,41 @@ void processData(String data) {
   else Mouse.release(MOUSE_LEFT);
   
   // Process reloading
-  if (reloading) Keyboard.press('R');
+  if (megazine) Keyboard.press('R');
   else Keyboard.release('R');
   
   // Process reaim
   if (reaim) {
     centerMouse();
   }
+
+  if (megazine) Keyboard.press('R');
+  else Keyboard.release('R');
+
+  if (skill1) Keyboard.press('1');
+  else Keyboard.release('1');
+
+  if (megazine) Keyboard.press('2');
+  else Keyboard.release('2');
+
+  if (megazine) Keyboard.press('2');
+  else Keyboard.release('2');
+
+  if (megazine) Keyboard.press('3');
+  else Keyboard.release('3');
+
+  if (megazine) Keyboard.press('4');
+  else Keyboard.release('4');
+
+  if (megazine) Keyboard.press('5');
+  else Keyboard.release('5');
+
+  if (zoom) Mouse.press(MOUSE_RIGHT);
+  else Mouse.release(MOUSE_RIGHT);
+
+  if (megazine) Keyboard.press(32);
+  else Keyboard.release(32);
+
 }
 
 void centerMouse() {
